@@ -223,6 +223,7 @@ int main( int argc, char ** argv )
 #if FUZZ_TEST
     Allocator fuzz_allocator;
     next_address_t fuzz_address;
+    memset( &fuzz_address, 0, sizeof(fuzz_address) );
     fuzz_address.type = NEXT_ADDRESS_IPV4;
     next_platform_socket_t * fuzz_socket = next_platform_socket_create( &fuzz_allocator, &fuzz_address, NEXT_PLATFORM_SOCKET_BLOCKING, -1.0f, 1024*1024, 1024*1024, true );
     if ( !fuzz_socket )
@@ -410,8 +411,8 @@ int main( int argc, char ** argv )
                 const int max_packet_bytes = NEXT_MAX_PACKET_BYTES * 2;
                 uint8_t packet_data[max_packet_bytes];
                 int packet_bytes = 1 + ( rand() % max_packet_bytes );
-                for ( int i = 0; i < packet_bytes; ++i )
-                    packet_data[i] = rand() % 256;
+                for ( int k = 0; k < packet_bytes; ++k )
+                    packet_data[k] = rand() % 256;
 
                 next_address_t server_address = next_server_address( servers[j] );
 
