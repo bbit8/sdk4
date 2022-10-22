@@ -10447,7 +10447,7 @@ bool next_autodetect_google( char * output )
         next_printf( NEXT_LOG_LEVEL_INFO, "server autodetect datacenter: not in google cloud" );
         return false;
     }
-
+    
     // we are running in google cloud, which zone are we in?
 
     char zone[256];
@@ -10548,7 +10548,9 @@ bool next_autodetect_google( char * output )
 
 #if NEXT_PLATFORM == NEXT_PLATFORM_LINUX || NEXT_PLATFORM == NEXT_PLATFORM_MAC
 
-    file = popen( "curl https://storage.googleapis.com/network-next-sdk/google.txt --max-time 10 -vs 2>/dev/null", "r" );
+    char cmd[1024];
+    sprintf( cmd, "curl \"https://storage.googleapis.com/network-next-sdk/google.txt?ts=%x\" --max-time 10 -vs 2>/dev/null", uint32_t(time(NULL)) );
+    file = popen( cmd, "r" );
     if ( !file )
     {
         next_printf( NEXT_LOG_LEVEL_INFO, "server autodetect datacenter: could not run curl" );
@@ -10557,7 +10559,9 @@ bool next_autodetect_google( char * output )
 
 #elif NEXT_PLATFORM == NEXT_PLATFORM_WINDOWS // #if NEXT_PLATFORM == NEXT_PLATFORM_LINUX || NEXT_PLATFORM == NEXT_PLATFORM_MAC
 
-    file = _popen( "powershell Invoke-RestMethod -Uri https://storage.googleapis.com/network-next-sdk/google.txt -TimeoutSec 10", "r" );
+    char cmd[1024];
+    sprintf( cmd, "powershell Invoke-RestMethod -Uri \"https://storage.googleapis.com/network-next-sdk/google.txt?ts=%x\" -TimeoutSec 10", uint32_t(time(NULL)) );
+    file = _popen( cmd, "r" );
     if ( !file )
     {
         next_printf( NEXT_LOG_LEVEL_INFO, "server autodetect datacenter: could not run powershell Invoke-RestMethod" );
@@ -10682,7 +10686,9 @@ bool next_autodetect_amazon( char * output )
 
 #if NEXT_PLATFORM == NEXT_PLATFORM_LINUX || NEXT_PLATFORM == NEXT_PLATFORM_MAC
 
-    file = popen( "curl https://storage.googleapis.com/network-next-sdk/amazon.txt --max-time 10 -vs 2>/dev/null", "r" );
+    char cmd[1024];
+    sprintf( cmd, "curl \"https://storage.googleapis.com/network-next-sdk/amazon.txt?ts=%x\" --max-time 10 -vs 2>/dev/null", uint32_t(time(NULL)) );
+    file = popen( cmd, "r" );
     if ( !file )
     {
         next_printf( NEXT_LOG_LEVEL_INFO, "server autodetect datacenter: could not run curl" );
@@ -10691,7 +10697,9 @@ bool next_autodetect_amazon( char * output )
 
 #elif NEXT_PLATFORM == NEXT_PLATFORM_WINDOWS // #if NEXT_PLATFORM == NEXT_PLATFORM_LINUX || NEXT_PLATFORM == NEXT_PLATFORM_MAC
 
-    file = _popen ( "powershell Invoke-RestMethod -Uri https://storage.googleapis.com/network-next-sdk/amazon.txt -TimeoutSec 10", "r" );
+    char cmd[1024];
+    sprintf( cmd, "powershell Invoke-RestMethod -Uri \"https://storage.googleapis.com/network-next-sdk/amazon.txt?ts=%x\" -TimeoutSec 10", uint32_t(time(NULL)) );
+    file = _popen ( cmd, "r" );
     if ( !file )
     {
         next_printf( NEXT_LOG_LEVEL_INFO, "server autodetect datacenter: could not run powershell Invoke-RestMethod" );
@@ -10964,7 +10972,9 @@ bool next_autodetect_multiplay( const char * input_datacenter, const char * addr
     char multiplay_line[1024];
     char multiplay_buffer[64*1024];
     multiplay_buffer[0] = '\0';
-    file = popen( "curl https://storage.googleapis.com/network-next-sdk/multiplay.txt --max-time 10 -vs 2>/dev/null", "r" );
+    char cmd[1024];
+    sprintf( cmd, "curl \"https://storage.googleapis.com/network-next-sdk/multiplay.txt?ts=%x\" --max-time 10 -vs 2>/dev/null", uint32_t(time(NULL)) );
+    file = popen( cmd, "r" );
     if ( !file )
     {
         next_printf( NEXT_LOG_LEVEL_INFO, "server autodetect datacenter: could not run curl" );
@@ -11007,6 +11017,7 @@ bool next_autodetect_multiplay( const char * input_datacenter, const char * addr
     if ( !found )
     {
         next_printf( NEXT_LOG_LEVEL_INFO, "could not autodetect multiplay datacenter :(" );
+	    next_printf( "-------------------------\n%s-------------------------\n", multiplay_buffer );
         const char * separators = "\n\r\n";
         char * line = strtok( whois_buffer, separators );
         while ( line )
@@ -11014,6 +11025,7 @@ bool next_autodetect_multiplay( const char * input_datacenter, const char * addr
         	next_printf( "%s", line );
         	line = strtok( NULL, separators );
         }
+        next_printf( "-------------------------\n" );
         return false;
     }
 
